@@ -12,6 +12,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))  # Окно
 pygame.display.set_caption("My Game")  # Название окна
 clock = pygame.time.Clock()  # Контроль времени
 
+
 # Цвета (R, G, B)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
