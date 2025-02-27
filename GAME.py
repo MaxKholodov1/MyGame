@@ -19,7 +19,7 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
-
+VIOLET = (238, 130, 238)
 speed_x = 4
 accel_y = 0.15
 speed_y = 9
@@ -27,6 +27,15 @@ max_speed_y = 9
 max_height= int((max_speed_y**2)/(2*accel_y))
 game_over=False
 font = pygame.font.Font(None, 36)
+
+BACKGROUND_IMAGE_PATH = "night.png"
+background = pygame.image.load(BACKGROUND_IMAGE_PATH).convert()
+background_height = background.get_height()
+background = pygame.transform.scale(background, (WIDTH, HEIGHT))
+
+def draw_background():
+    # screen.blit(background, (0, 0), (0, background_height - HEIGHT, WIDTH, HEIGHT))
+    screen.blit(background, (0, 0))
 
 # Путь к файлу с изображением
 PLAYER_IMAGE_PATH = "images.png"
@@ -58,7 +67,7 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.transform.scale(self.image, (40, 40))  # Масштабируем
         else:
             self.image = pygame.Surface((40, 40))
-            self.image.fill(GREEN)
+            self.image.fill(VIOLET)
 
         self.rect = self.image.get_rect()  
         self.rect.center = (WIDTH / 2, HEIGHT / 2+100)  
@@ -158,7 +167,7 @@ class Block(pygame.sprite.Sprite):
             prevy=prevblock.rect.centery
             y = random.randint(prevy-max_height, prevy-max_height//5)
         self.image = pygame.Surface((80, 10))
-        self.image.fill(GREEN)
+        self.image.fill(VIOLET)
         self.rect = self.image.get_rect()  
         self.rect.center = (x, y)  
 
@@ -214,8 +223,8 @@ def show_restart_screen():
 running = True
 while running:
     clock.tick(FPS)  
-    screen.fill(BLACK)  
-
+    # screen.fill(BLACK)  
+    draw_background()  # Отображаем фон
     score_text = font.render(f"Score: {score}", True, WHITE)
     screen.blit(score_text, (10, 10))
 

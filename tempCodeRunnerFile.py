@@ -1,1 +1,1 @@
-all_sprites.add(moved_block)
+    # screen.fill(BLACK)  
