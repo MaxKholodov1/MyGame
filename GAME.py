@@ -6,7 +6,7 @@ import config
 WIDTH =450
 HEIGHT = 700
 FPS = 120
-
+score=0
 # Инициализация Pygame
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))  # Окно
@@ -61,7 +61,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = (WIDTH / 2, HEIGHT / 2+100)  
 
     def update(self):
-        global speed_x, accel_y, speed_y
+        global speed_x, accel_y, speed_y, score
 
         if self.rect.top > HEIGHT:
             global game_over  
@@ -92,6 +92,8 @@ class Player(pygame.sprite.Sprite):
                 block.rect.bottom+=(HEIGHT/2-self.rect.bottom)
                 if(block.rect.bottom>HEIGHT):
                     remove.append(i)
+                    score+=1
+                    print(score)
                     cnt+=1
             for i in range (cnt-1, -1, -1):
                 all_sprites.remove(blocks[remove[i]])
@@ -112,19 +114,19 @@ class Moved_Block(pygame.sprite.Sprite):
         x = random.randint(40, WIDTH-40)
         self.speed_x=2
         global flag
-        if(flag==True):
+        if(len(blocks)!=0):
             prevblock=blocks[-1]
             prevy=prevblock.rect.centery
             y = random.randint(prevy-max_height, prevy-max_height//5)
             self.image = pygame.Surface((80, 10))
-            self.image.fill(RED)
+            self.image.fill(BLUE)
             self.rect = self.image.get_rect()  
             self.rect.center = (x, y)  
         else:
             flag=True
             y = random.randint(0, HEIGHT)
             self.image = pygame.Surface((80, 10))
-            self.image.fill(RED)
+            self.image.fill(BLUE)
             self.rect = self.image.get_rect()  
             self.rect.center = (x, y) 
     def update(self):
@@ -138,17 +140,15 @@ class Moved_Block(pygame.sprite.Sprite):
 
 all_sprites = pygame.sprite.Group()
 player = Player()
-moved_block = Moved_Block()
-blocks = [moved_block]
+blocks=[]
 all_sprites.add(player)
-all_sprites.add(moved_block)
 # Блоки
 class Block(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         x = random.randint(40, WIDTH-40)
         global max_height
-        if len(blocks) <2:
+        if len(blocks) <=1:
             x = WIDTH / 2
             y = HEIGHT / 2+200
         else:
@@ -163,15 +163,10 @@ class Block(pygame.sprite.Sprite):
 # Группа спрайтов
 # 
 
-block = Block()
-blocks.append(block)
 for i in range(5):
     block_new=Block()
     all_sprites.add(block_new)
     blocks.append(block_new)
-
-
-all_sprites.add(block)
 
 
 def draw_button(text, x, y, width, height, color, text_color):
@@ -197,7 +192,10 @@ def show_restart_screen():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:  # Проверяем нажатие мыши
+            keys = pygame.key.get_pressed()
+
+            if event.type == pygame.MOUSEBUTTONDOWN or keys[pygame.K_SPACE]: 
+             # Проверяем нажатие мыши
                 if button_rect.collidepoint(event.pos):  # Проверяем, попала ли мышь в кнопку
                     waiting = False
                     global game_over
@@ -205,7 +203,6 @@ def show_restart_screen():
                     restart_game()
 
 # Цикл игры
-from moving_block import h
 
 running = True
 while running:
