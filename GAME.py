@@ -1,9 +1,9 @@
 import pygame
 import random
 import os
-
+import config
 # Константы
-WIDTH =400
+WIDTH =450
 HEIGHT = 700
 FPS = 120
 
@@ -32,7 +32,7 @@ PLAYER_IMAGE_PATH = "images.png"
 
 #перезапуск
 def restart_game():
-    global blocks, all_sprites, player, speed_y
+    global  all_sprites, player, speed_y
     speed_y = 10
     
     all_sprites.empty()
@@ -41,7 +41,7 @@ def restart_game():
     player = Player()
     all_sprites.add(player)
 
-    for _ in range(6):
+    for _ in range(5):
         block = Block()
         blocks.append(block)
         all_sprites.add(block)
@@ -73,7 +73,7 @@ class Player(pygame.sprite.Sprite):
         # Проверка столкновения с блоком
         for block in blocks:
             if self.rect.colliderect(block.rect):
-                if 0 <= self.rect.bottom - block.rect.top <= 5 * speed_y and speed_y > 0 and not (self.rect.left + 2 * speed_x > block.rect.right) and not (self.rect.right - 2 * speed_x < block.rect.left):
+                if 0 <= self.rect.bottom - block.rect.top <= 5 * speed_y and speed_y > 0 and not (self.rect.left +  speed_x > block.rect.right) and not (self.rect.right -  speed_x < block.rect.left):
                     self.rect.bottom = block.rect.top  
                     speed_y = -max_speed_y  
 
@@ -93,25 +93,62 @@ class Player(pygame.sprite.Sprite):
                 if(block.rect.bottom>HEIGHT):
                     remove.append(i)
                     cnt+=1
-            self.rect.bottom=HEIGHT//2
             for i in range (cnt-1, -1, -1):
                 all_sprites.remove(blocks[remove[i]])
                 del blocks[i]
             for i in range(cnt):
-                block=Block()
+                block=Moved_Block()
                 blocks.append(block)
                 all_sprites.add(block)
+            self.rect.bottom=HEIGHT//2
 
 
+#движущиеся блоки 
+block_speed_x=2
+flag=False
+class Moved_Block(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        x = random.randint(40, WIDTH-40)
+        self.speed_x=2
+        global flag
+        if(flag==True):
+            prevblock=blocks[-1]
+            prevy=prevblock.rect.centery
+            y = random.randint(prevy-max_height, prevy-max_height//5)
+            self.image = pygame.Surface((80, 10))
+            self.image.fill(RED)
+            self.rect = self.image.get_rect()  
+            self.rect.center = (x, y)  
+        else:
+            flag=True
+            y = random.randint(0, HEIGHT)
+            self.image = pygame.Surface((80, 10))
+            self.image.fill(RED)
+            self.rect = self.image.get_rect()  
+            self.rect.center = (x, y) 
+    def update(self):
+        global block_speed_x
+        speed_x=0
+        if(self.rect.left<0 or self.rect.right>WIDTH ):
+            self.speed_x=-self.speed_x
+        self.rect.x+=self.speed_x
+# Группа спрайтов
+# 
+
+all_sprites = pygame.sprite.Group()
+player = Player()
+moved_block = Moved_Block()
+blocks = [moved_block]
+all_sprites.add(player)
+all_sprites.add(moved_block)
 # Блоки
-blocks = []
-
 class Block(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         x = random.randint(40, WIDTH-40)
         global max_height
-        if len(blocks) == 0:
+        if len(blocks) <2:
             x = WIDTH / 2
             y = HEIGHT / 2+200
         else:
@@ -119,24 +156,21 @@ class Block(pygame.sprite.Sprite):
             prevy=prevblock.rect.centery
             y = random.randint(prevy-max_height, prevy-max_height//5)
         self.image = pygame.Surface((80, 10))
-        self.image.fill(RED)
+        self.image.fill(GREEN)
         self.rect = self.image.get_rect()  
         self.rect.center = (x, y)  
 
 # Группа спрайтов
 # 
 
-all_sprites = pygame.sprite.Group()
-player = Player()
 block = Block()
-blocks = [block]
-for i in range(6):
+blocks.append(block)
+for i in range(5):
     block_new=Block()
     all_sprites.add(block_new)
     blocks.append(block_new)
 
 
-all_sprites.add(player)
 all_sprites.add(block)
 
 
@@ -171,6 +205,8 @@ def show_restart_screen():
                     restart_game()
 
 # Цикл игры
+from moving_block import h
+
 running = True
 while running:
     clock.tick(FPS)  

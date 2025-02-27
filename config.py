@@ -1,0 +1,2 @@
+blocks=[]
+print(blocks)
