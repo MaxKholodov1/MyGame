@@ -26,13 +26,15 @@ speed_y = 9
 max_speed_y = 9
 max_height= int((max_speed_y**2)/(2*accel_y))
 game_over=False
+font = pygame.font.Font(None, 36)
+
 # Путь к файлу с изображением
 PLAYER_IMAGE_PATH = "images.png"
 
 
 #перезапуск
 def restart_game():
-    global  all_sprites, player, speed_y
+    global  all_sprites, player, speed_y, score
     speed_y = 10
     
     all_sprites.empty()
@@ -45,6 +47,7 @@ def restart_game():
         block = Block()
         blocks.append(block)
         all_sprites.add(block)
+    score=0
 # Спрайт игрока
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -73,7 +76,7 @@ class Player(pygame.sprite.Sprite):
         # Проверка столкновения с блоком
         for block in blocks:
             if self.rect.colliderect(block.rect):
-                if 0 <= self.rect.bottom - block.rect.top <= 5 * speed_y and speed_y > 0 and not (self.rect.left +  speed_x > block.rect.right) and not (self.rect.right -  speed_x < block.rect.left):
+                if 0 <= self.rect.bottom - block.rect.top <= 5 * speed_y and speed_y > 0 and not (self.rect.left +  1.5*speed_x > block.rect.right) and not (self.rect.right -  1.5*speed_x < block.rect.left):
                     self.rect.bottom = block.rect.top  
                     speed_y = -max_speed_y  
 
@@ -93,7 +96,6 @@ class Player(pygame.sprite.Sprite):
                 if(block.rect.bottom>HEIGHT):
                     remove.append(i)
                     score+=1
-                    print(score)
                     cnt+=1
             for i in range (cnt-1, -1, -1):
                 all_sprites.remove(blocks[remove[i]])
@@ -194,12 +196,17 @@ def show_restart_screen():
                 exit()
             keys = pygame.key.get_pressed()
 
-            if event.type == pygame.MOUSEBUTTONDOWN or keys[pygame.K_SPACE]: 
+            if event.type == pygame.MOUSEBUTTONDOWN: 
              # Проверяем нажатие мыши
                 if button_rect.collidepoint(event.pos):  # Проверяем, попала ли мышь в кнопку
                     waiting = False
                     global game_over
                     game_over=False
+                    restart_game()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:  # Если нажата клавиша пробела
+                    waiting = False
+                    game_over = False
                     restart_game()
 
 # Цикл игры
@@ -208,6 +215,9 @@ running = True
 while running:
     clock.tick(FPS)  
     screen.fill(BLACK)  
+
+    score_text = font.render(f"Score: {score}", True, WHITE)
+    screen.blit(score_text, (10, 10))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
